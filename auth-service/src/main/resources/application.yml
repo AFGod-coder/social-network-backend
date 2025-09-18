@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: auth-service
+
+  datasource:
+    url: jdbc:postgresql://auth-db:5432/auth_db
+    username: auth_user
+    password: auth_pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: auth
+
+  flyway:
+    enabled: true
+    schemas: auth
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+server:
+  port: 8082
+
+jwt:
+  secret: b56d09cec5948878a0ea9813aeed7241b5812780447d3260a47141e09bcfd792
+  expiration: 3600000       # 1 hora
+  refresh-expiration: 604800000 # 7 días

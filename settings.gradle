@@ -1,0 +1,6 @@
+rootProject.name = "social-network-backend"
+
+include("auth-service")
+include("bff-service")
+include("business-service")
+include("social-data-service")

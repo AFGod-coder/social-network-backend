@@ -1,0 +1,147 @@
+package com.example.bff.service;
+
+import com.example.bff.client.AuthClient;
+import com.example.bff.client.BusinessClient;
+import com.example.bff.dto.*;
+import com.example.bff.exception.ExternalServiceException;
+import com.example.bff.exception.ResourceNotFoundException;
+import com.example.bff.exception.UnauthorizedException;
+import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Slf4j
+public class BffService {
+
+    private final AuthClient authClient;
+    private final BusinessClient businessClient;
+
+    public BffService(AuthClient authClient, BusinessClient businessClient) {
+        this.authClient = authClient;
+        this.businessClient = businessClient;
+    }
+
+    // Auth
+    public AuthResponse login(AuthRequest request) {
+        try {
+            log.info("Intentando login para usuario: {}", request.email());
+            return authClient.login(request);
+        } catch (FeignException.Unauthorized e) {
+            log.error("Credenciales inválidas para usuario: {}", request.email());
+            throw new UnauthorizedException("Credenciales inválidas");
+        } catch (FeignException e) {
+            log.error("Error en servicio de autenticación, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
+        }
+    }
+
+    public UserDto register(RegisterRequest request) {
+        try {
+            log.info("Registrando nuevo usuario: {}", request.email());
+            return authClient.register(request);
+        } catch (FeignException.BadRequest e) {
+            log.error("Error de validación en registro: {}", e.getMessage());
+            throw new ExternalServiceException("Error de validación: " + e.getMessage());
+        } catch (FeignException e) {
+            log.error("Error en servicio de autenticación durante registro, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
+        }
+    }
+
+    public UserDto getAuthUser(Long id) {
+        try {
+            log.info("Obteniendo usuario de autenticación con ID: {}", id);
+            return authClient.getUserById(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException e) {
+            log.error("Error al obtener usuario de autenticación con ID: {}, status: {}", id, e.status());
+            throw new ExternalServiceException("Error al obtener usuario: " + e.getMessage());
+        }
+    }
+
+    // Business
+    public UserDto getUser(Long id) {
+        try {
+            log.info("Obteniendo usuario completo con ID: {}", id);
+            return businessClient.getUserById(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener usuario con ID: {}", id);
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener usuario con ID: {}, status: {}", id, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public List<PostDto> getFeed(Long userId) {
+        try {
+            log.info("Obteniendo feed para usuario: {}", userId);
+            return businessClient.getFeed(userId);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener feed del usuario: {}", userId);
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener feed para usuario: {}, status: {}", userId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public PostDto createPost(CreatePostRequest request) {
+        try {
+            log.info("Creando post para usuario: {}", request.getAuthorId());
+            return businessClient.createPost(request);
+        } catch (FeignException.BadRequest e) {
+            log.error("Error de validación al crear post: {}", e.getMessage());
+            throw new ExternalServiceException("Error de validación: " + e.getMessage());
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para crear post");
+            throw new UnauthorizedException("No autorizado para crear posts");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al crear post, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public LikeDto addLike(Long postId, CreateLikeRequest request) {
+        try {
+            log.info("Agregando like al post: {} por usuario: {}", postId, request.getUserId());
+            return businessClient.addLike(postId, request);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", postId);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + postId);
+        } catch (FeignException.BadRequest e) {
+            log.error("Error de validación al agregar like: {}", e.getMessage());
+            throw new ExternalServiceException("Error de validación: " + e.getMessage());
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para agregar like al post: {}", postId);
+            throw new UnauthorizedException("No autorizado para agregar likes");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al agregar like al post: {}, status: {}", postId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public Integer countLikes(Long postId) {
+        try {
+            log.info("Contando likes del post: {}", postId);
+            return businessClient.countLikes(postId);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", postId);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + postId);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para contar likes del post: {}", postId);
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al contar likes del post: {}, status: {}", postId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+}

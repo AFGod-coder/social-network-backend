@@ -1,0 +1,63 @@
+spring:
+  application:
+    name: bff-service
+  
+  # Configuración de logging
+  main:
+    log-startup-info: true
+
+server:
+  port: 8084
+  servlet:
+    context-path: /
+
+# Configuración de logging
+logging:
+  level:
+    com.example.bff: INFO
+    org.springframework.security: DEBUG
+    feign: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# URLs de los servicios dependientes
+services:
+  auth: http://auth-service:8082
+  business: http://business-service:8083
+
+# Configuración de Feign
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: basic
+  hystrix:
+    enabled: false
+
+# Configuración de OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+
+# Configuración de Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# Configuración JWT
+jwt:
+  secret: b56d09cec5948878a0ea9813aeed7241b5812780447d3260a47141e09bcfd792
+  expiration-ms: 3600000

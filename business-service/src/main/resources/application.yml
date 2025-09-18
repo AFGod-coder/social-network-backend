@@ -1,0 +1,64 @@
+spring:
+  application:
+    name: business-service
+  
+  # Configuración de logging
+  main:
+    log-startup-info: true
+
+server:
+  port: 8083
+  servlet:
+    context-path: /
+
+# Configuración de logging
+logging:
+  level:
+    com.example.business: INFO
+    org.springframework.security: DEBUG
+    feign: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Configuración de seguridad JWT
+security:
+  jwt:
+    secret: b56d09cec5948878a0ea9813aeed7241b5812780447d3260a47141e09bcfd792
+    expiration: 3600000 # 1 hora en ms
+
+# URLs de los servicios dependientes
+services:
+  auth: http://auth-service:8082
+  data: http://social-data-service:8081
+
+# Configuración de Feign
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: basic
+  hystrix:
+    enabled: false
+
+# Configuración de OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+
+# Configuración de Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized

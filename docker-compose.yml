@@ -1,0 +1,132 @@
+version: "3.9"
+
+networks:
+  socialnet:
+    driver: bridge
+
+services:
+  # ============================
+  # Base de datos de AUTH
+  # ============================
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    networks:
+      - socialnet
+
+  # ============================
+  # AUTH SERVICE
+  # ============================
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    depends_on:
+      - auth-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
+      SPRING_DATASOURCE_USERNAME: auth_user
+      SPRING_DATASOURCE_PASSWORD: auth_pass
+    ports:
+      - "8082:8082"
+    networks:
+      - socialnet
+
+  # ============================
+  # Base de datos SOCIAL-DATA
+  # ============================
+  social-data-db:
+    image: postgres:16
+    container_name: social-data-db
+    environment:
+      POSTGRES_DB: social_data_db
+      POSTGRES_USER: social_data_user
+      POSTGRES_PASSWORD: social_data_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - social_data:/var/lib/postgresql/data
+    networks:
+      - socialnet
+
+  # ============================
+  # SOCIAL DATA SERVICE
+  # ============================
+  social-data-service:
+    build: ./social-data-service
+    container_name: social-data-service
+    depends_on:
+      - social-data-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://social-data-db:5432/social_data_db
+      SPRING_DATASOURCE_USERNAME: social_data_user
+      SPRING_DATASOURCE_PASSWORD: social_data_pass
+    ports:
+      - "8081:8081"
+    networks:
+      - socialnet
+
+  # ============================
+  # Base de datos BUSINESS
+  # ============================
+  business-db:
+    image: postgres:16
+    container_name: business-db
+    environment:
+      POSTGRES_DB: business_db
+      POSTGRES_USER: business_user
+      POSTGRES_PASSWORD: business_pass
+    ports:
+      - "5435:5432"
+    volumes:
+      - business_data:/var/lib/postgresql/data
+    networks:
+      - socialnet
+
+  # ============================
+  # BUSINESS SERVICE
+  # ============================
+  business-service:
+    build: ./business-service
+    container_name: business-service
+    depends_on:
+      - business-db
+      - auth-service
+      - social-data-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://business-db:5432/business_db
+      SPRING_DATASOURCE_USERNAME: business_user
+      SPRING_DATASOURCE_PASSWORD: business_pass
+    ports:
+      - "8083:8083"
+    networks:
+      - socialnet
+
+  # ============================
+  # BFF SERVICE
+  # ============================
+  bff-service:
+    build: ./bff-service
+    container_name: bff-service
+    depends_on:
+      - auth-service
+      - business-service
+    ports:
+      - "8084:8084"
+    networks:
+      - socialnet
+
+# ============================
+# VOLUMES
+# ============================
+volumes:
+  auth_data:
+  social_data:
+  business_data:
