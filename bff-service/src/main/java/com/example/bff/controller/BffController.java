@@ -39,7 +39,6 @@ public class BffController {
     public ResponseEntity<UserDto> getUser(
             @Parameter(description = "ID del usuario", example = "1", required = true)
             @PathVariable @NotNull Long id) {
-        log.info("Solicitando usuario completo con ID: {}", id);
         UserDto user = service.getUser(id);
         return ResponseEntity.ok(user);
     }
@@ -54,7 +53,6 @@ public class BffController {
     public ResponseEntity<List<PostDto>> getFeed(
             @Parameter(description = "ID del usuario", example = "1", required = true)
             @RequestParam @NotNull Long userId) {
-        log.info("Solicitando feed para usuario: {}", userId);
         List<PostDto> feed = service.getFeed(userId);
         return ResponseEntity.ok(feed);
     }
@@ -70,7 +68,6 @@ public class BffController {
     public ResponseEntity<PostDto> createPost(
             @Parameter(description = "Datos de la nueva publicación", required = true)
             @Valid @RequestBody CreatePostRequest request) {
-        log.info("Creando nueva publicación para usuario: {}", request.getAuthorId());
         PostDto post = service.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(post);
     }
@@ -89,7 +86,6 @@ public class BffController {
             @PathVariable @NotNull Long postId,
             @Parameter(description = "Datos del like", required = true)
             @Valid @RequestBody CreateLikeRequest request) {
-        log.info("Agregando like al post: {} por usuario: {}", postId, request.getUserId());
         LikeDto like = service.addLike(postId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(like);
     }
@@ -105,8 +101,126 @@ public class BffController {
     public ResponseEntity<Integer> countLikes(
             @Parameter(description = "ID de la publicación", example = "1", required = true)
             @PathVariable @NotNull Long postId) {
-        log.info("Contando likes del post: {}", postId);
         Integer count = service.countLikes(postId);
         return ResponseEntity.ok(count);
+    }
+
+    @Operation(summary = "Obtener publicación por ID", description = "Obtiene una publicación específica por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Publicación encontrada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Publicación no encontrada"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<PostDto> getPost(
+            @Parameter(description = "ID de la publicación", example = "1", required = true)
+            @PathVariable @NotNull Long id) {
+        PostDto post = service.getPost(id);
+        return ResponseEntity.ok(post);
+    }
+
+    @Operation(summary = "Obtener todas las publicaciones", description = "Obtiene todas las publicaciones del sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Publicaciones obtenidas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @GetMapping("/posts")
+    public ResponseEntity<List<PostDto>> getAllPosts() {
+        List<PostDto> posts = service.getAllPosts();
+        return ResponseEntity.ok(posts);
+    }
+
+    @Operation(summary = "Eliminar publicación", description = "Elimina una publicación específica")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Publicación eliminada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Publicación no encontrada"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<Void> deletePost(
+            @Parameter(description = "ID de la publicación", example = "1", required = true)
+            @PathVariable @NotNull Long id) {
+        service.deletePost(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Obtener likes de publicación", description = "Obtiene todos los likes de una publicación específica")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Likes obtenidos exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Publicación no encontrada"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @GetMapping("/posts/{postId}/likes")
+    public ResponseEntity<List<LikeDto>> getLikes(
+            @Parameter(description = "ID de la publicación", example = "1", required = true)
+            @PathVariable @NotNull Long postId) {
+        List<LikeDto> likes = service.getLikes(postId);
+        return ResponseEntity.ok(likes);
+    }
+
+    @Operation(summary = "Eliminar like", description = "Elimina un like específico de una publicación")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Like eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Like no encontrado"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @DeleteMapping("/posts/{postId}/likes/{likeId}")
+    public ResponseEntity<Void> removeLike(
+            @Parameter(description = "ID de la publicación", example = "1", required = true)
+            @PathVariable @NotNull Long postId,
+            @Parameter(description = "ID del like", example = "1", required = true)
+            @PathVariable @NotNull Long likeId) {
+        service.removeLike(likeId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Obtener todos los usuarios", description = "Obtiene todos los usuarios del sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuarios obtenidos exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = service.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @Operation(summary = "Actualizar usuario", description = "Actualiza la información de un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @Parameter(description = "ID del usuario", example = "1", required = true)
+            @PathVariable @NotNull Long id,
+            @Parameter(description = "Datos actualizados del usuario", required = true)
+            @Valid @RequestBody UpdateUserRequest request) {
+        UserDto user = service.updateUser(id, request);
+        return ResponseEntity.ok(user);
+    }
+
+    @Operation(summary = "Eliminar usuario", description = "Elimina un usuario del sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "401", description = "No autorizado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio dependiente")
+    })
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @Parameter(description = "ID del usuario", example = "1", required = true)
+            @PathVariable @NotNull Long id) {
+        service.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.auth.dto.response;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public record UserResponse(
@@ -9,5 +10,6 @@ public record UserResponse(
         String lastName,
         String alias,
         String role,
+        LocalDate dateOfBirth,
         LocalDateTime createdAt
 ) {}

@@ -34,7 +34,6 @@ public class AuthBffController {
     public ResponseEntity<AuthResponse> login(
             @Parameter(description = "Credenciales de login", required = true)
             @Valid @RequestBody AuthRequest request) {
-        log.info("Intentando login para usuario: {}", request.email());
         AuthResponse response = service.login(request);
         return ResponseEntity.ok(response);
     }
@@ -46,12 +45,11 @@ public class AuthBffController {
             @ApiResponse(responseCode = "502", description = "Error en servicio de autenticación")
     })
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(
+    public ResponseEntity<AuthResponse> register(
             @Parameter(description = "Datos del nuevo usuario", required = true)
             @Valid @RequestBody RegisterRequest request) {
-        log.info("Registrando nuevo usuario: {}", request.email());
-        UserDto user = service.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        AuthResponse response = service.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Obtener usuario de autenticación", description = "Obtiene información básica de un usuario desde el servicio de autenticación")
@@ -64,8 +62,21 @@ public class AuthBffController {
     public ResponseEntity<UserDto> getUser(
             @Parameter(description = "ID del usuario", example = "1", required = true)
             @PathVariable @NotNull Long id) {
-        log.info("Obteniendo usuario de autenticación con ID: {}", id);
         UserDto user = service.getAuthUser(id);
         return ResponseEntity.ok(user);
+    }
+
+    @Operation(summary = "Renovar token de acceso", description = "Renueva el token de acceso usando el refresh token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token renovado exitosamente"),
+            @ApiResponse(responseCode = "401", description = "Refresh token inválido o expirado"),
+            @ApiResponse(responseCode = "502", description = "Error en servicio de autenticación")
+    })
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(
+            @Parameter(description = "Refresh token", required = true)
+            @Valid @RequestBody RefreshTokenRequest request) {
+        AuthResponse response = service.refreshToken(request);
+        return ResponseEntity.ok(response);
     }
 }

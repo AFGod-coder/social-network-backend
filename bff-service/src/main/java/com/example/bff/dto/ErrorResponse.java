@@ -1,15 +1,18 @@
 package com.example.bff.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
-@AllArgsConstructor
+@Builder
 public class ErrorResponse {
+    private LocalDateTime timestamp;
     private int status;
     private String error;
     private String message;
-    private Instant timestamp;
+    private String path;
+    private Map<String, String> validationErrors;
 }

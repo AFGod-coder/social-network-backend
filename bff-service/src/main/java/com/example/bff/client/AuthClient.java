@@ -11,8 +11,11 @@ public interface AuthClient {
     AuthResponse login(@RequestBody AuthRequest request);
 
     @PostMapping("/api/v1/auth/register")
-    UserDto register(@RequestBody RegisterRequest request);
+    AuthResponse register(@RequestBody RegisterRequest request);
 
     @GetMapping("/api/v1/auth/users/{id}")
     UserDto getUserById(@PathVariable("id") Long id);
+
+    @PostMapping("/api/v1/auth/refresh")
+    AuthResponse refreshToken(@RequestBody RefreshTokenRequest request);
 }

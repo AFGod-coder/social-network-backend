@@ -44,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(request.getLastName())
                 .alias(request.getAlias())
                 .role("USER")
+                .dateOfBirth(request.getDateOfBirth())
                 .build();
 
         User savedUser = userRepository.save(user);

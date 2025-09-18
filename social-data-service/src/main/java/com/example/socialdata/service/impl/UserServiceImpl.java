@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(request.getLastName())
                 .alias(request.getAlias())
                 .email(request.getEmail())
+                .role("USER")
                 .dateOfBirth(request.getDateOfBirth())
                 .build();
         userRepository.save(user);
@@ -70,6 +71,7 @@ public class UserServiceImpl implements UserService {
         if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
         if (request.getLastName() != null) user.setLastName(request.getLastName());
         if (request.getAlias() != null) user.setAlias(request.getAlias());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
         if (request.getDateOfBirth() != null) user.setDateOfBirth(request.getDateOfBirth());
 
         userRepository.save(user);
@@ -90,6 +92,7 @@ public class UserServiceImpl implements UserService {
                 u.getLastName(),
                 u.getAlias(),
                 u.getEmail(),
+                u.getRole(),
                 u.getDateOfBirth(),
                 u.getCreatedAt()
         );

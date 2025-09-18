@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
                 user.getLastName(),
                 user.getAlias(),
                 user.getRole(),
+                user.getDateOfBirth(),
                 LocalDateTime.ofInstant(user.getCreatedAt(), ZoneId.systemDefault())
         );
     }

@@ -30,8 +30,13 @@ public class BusinessService {
             UserDto socialUser = socialDataClient.getUserById(id);
 
             // Combinar información de ambos servicios
-            if (socialUser != null && socialUser.getAlias() != null) {
-                authUser.setAlias(socialUser.getAlias());
+            if (socialUser != null) {
+                if (socialUser.getAlias() != null) {
+                    authUser.setAlias(socialUser.getAlias());
+                }
+                if (socialUser.getDateOfBirth() != null) {
+                    authUser.setDateOfBirth(socialUser.getDateOfBirth());
+                }
             }
             return authUser;
         } catch (FeignException.NotFound e) {
@@ -95,6 +100,107 @@ public class BusinessService {
         } catch (FeignException e) {
             log.error("Error al contar likes del post: {}, status: {}", postId, e.status());
             throw new BusinessClientException("Error al contar likes: " + e.getMessage());
+        }
+    }
+
+    public List<PostDto> getAllPosts() {
+        try {
+            log.info("Obteniendo todas las publicaciones");
+            return socialDataClient.getAllPosts();
+        } catch (FeignException e) {
+            log.error("Error al obtener publicaciones, status: {}", e.status());
+            throw new BusinessClientException("Error al obtener publicaciones: " + e.getMessage());
+        }
+    }
+
+    public PostDto getPostById(Long id) {
+        try {
+            log.info("Obteniendo post con ID: {}", id);
+            return socialDataClient.getPostById(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
+        } catch (FeignException e) {
+            log.error("Error al obtener post con ID: {}, status: {}", id, e.status());
+            throw new BusinessClientException("Error al obtener post: " + e.getMessage());
+        }
+    }
+
+    public void deletePost(Long id) {
+        try {
+            log.info("Eliminando post con ID: {}", id);
+            socialDataClient.deletePost(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
+        } catch (FeignException e) {
+            log.error("Error al eliminar post con ID: {}, status: {}", id, e.status());
+            throw new BusinessClientException("Error al eliminar post: " + e.getMessage());
+        }
+    }
+
+    public List<LikeDto> getLikes(Long postId) {
+        try {
+            log.info("Obteniendo likes del post: {}", postId);
+            return socialDataClient.getLikes(postId);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", postId);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + postId);
+        } catch (FeignException e) {
+            log.error("Error al obtener likes del post: {}, status: {}", postId, e.status());
+            throw new BusinessClientException("Error al obtener likes: " + e.getMessage());
+        }
+    }
+
+    public void removeLike(Long likeId) {
+        try {
+            log.info("Eliminando like con ID: {}", likeId);
+            socialDataClient.removeLike(likeId);
+        } catch (FeignException.NotFound e) {
+            log.error("Like no encontrado con ID: {}", likeId);
+            throw new ResourceNotFoundException("Like no encontrado con ID: " + likeId);
+        } catch (FeignException e) {
+            log.error("Error al eliminar like con ID: {}, status: {}", likeId, e.status());
+            throw new BusinessClientException("Error al eliminar like: " + e.getMessage());
+        }
+    }
+
+    public List<UserDto> getAllUsers() {
+        try {
+            log.info("Obteniendo todos los usuarios");
+            return socialDataClient.getAllUsers();
+        } catch (FeignException e) {
+            log.error("Error al obtener usuarios, status: {}", e.status());
+            throw new BusinessClientException("Error al obtener usuarios: " + e.getMessage());
+        }
+    }
+
+    public UserDto updateUser(Long id, UpdateUserRequest request) {
+        try {
+            log.info("Actualizando usuario con ID: {}", id);
+            return socialDataClient.updateUser(id, request);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException.BadRequest e) {
+            log.error("Error de validación al actualizar usuario: {}", e.getMessage());
+            throw new BusinessClientException("Error de validación: " + e.getMessage());
+        } catch (FeignException e) {
+            log.error("Error al actualizar usuario con ID: {}, status: {}", id, e.status());
+            throw new BusinessClientException("Error al actualizar usuario: " + e.getMessage());
+        }
+    }
+
+    public void deleteUser(Long id) {
+        try {
+            log.info("Eliminando usuario con ID: {}", id);
+            socialDataClient.deleteUser(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException e) {
+            log.error("Error al eliminar usuario con ID: {}, status: {}", id, e.status());
+            throw new BusinessClientException("Error al eliminar usuario: " + e.getMessage());
         }
     }
 }

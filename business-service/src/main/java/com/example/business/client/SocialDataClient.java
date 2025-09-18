@@ -29,4 +29,19 @@ public interface SocialDataClient {
 
     @GetMapping("/api/v1/users/{id}")
     UserDto getUserById(@PathVariable("id") Long id);
+
+    @DeleteMapping("/api/v1/posts/{id}")
+    void deletePost(@PathVariable("id") Long id);
+
+    @DeleteMapping("/api/v1/posts/{postId}/likes/{likeId}")
+    void removeLike(@PathVariable("likeId") Long likeId);
+
+    @GetMapping("/api/v1/users")
+    List<UserDto> getAllUsers();
+
+    @PutMapping("/api/v1/users/{id}")
+    UserDto updateUser(@PathVariable("id") Long id, @RequestBody UpdateUserRequest request);
+
+    @DeleteMapping("/api/v1/users/{id}")
+    void deleteUser(@PathVariable("id") Long id);
 }

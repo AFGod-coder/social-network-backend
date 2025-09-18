@@ -38,13 +38,16 @@ public class BffService {
         }
     }
 
-    public UserDto register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
         try {
             log.info("Registrando nuevo usuario: {}", request.email());
             return authClient.register(request);
+        } catch (FeignException.Conflict e) {
+            log.error("Usuario ya existe: {}", e.getMessage());
+            throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
         } catch (FeignException.BadRequest e) {
             log.error("Error de validación en registro: {}", e.getMessage());
-            throw new ExternalServiceException("Error de validación: " + e.getMessage());
+            throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
         } catch (FeignException e) {
             log.error("Error en servicio de autenticación durante registro, status: {}", e.status());
             throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
@@ -141,6 +144,144 @@ public class BffService {
             throw new UnauthorizedException("No autorizado para acceder a este recurso");
         } catch (FeignException e) {
             log.error("Error en servicio de negocio al contar likes del post: {}, status: {}", postId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public AuthResponse refreshToken(RefreshTokenRequest request) {
+        try {
+            log.info("Renovando token de acceso");
+            return authClient.refreshToken(request);
+        } catch (FeignException.Unauthorized e) {
+            log.error("Refresh token inválido o expirado");
+            throw new UnauthorizedException("Refresh token inválido o expirado");
+        } catch (FeignException e) {
+            log.error("Error en servicio de autenticación al renovar token, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de autenticación: " + e.getMessage());
+        }
+    }
+
+    public PostDto getPost(Long id) {
+        try {
+            log.info("Obteniendo post con ID: {}", id);
+            return businessClient.getPostById(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener post con ID: {}", id);
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener post con ID: {}, status: {}", id, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public List<PostDto> getAllPosts() {
+        try {
+            log.info("Obteniendo todas las publicaciones");
+            return businessClient.getAllPosts();
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener publicaciones");
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener publicaciones, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public void deletePost(Long id) {
+        try {
+            log.info("Eliminando post con ID: {}", id);
+            businessClient.deletePost(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para eliminar post con ID: {}", id);
+            throw new UnauthorizedException("No autorizado para eliminar este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al eliminar post con ID: {}, status: {}", id, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public List<LikeDto> getLikes(Long postId) {
+        try {
+            log.info("Obteniendo likes del post: {}", postId);
+            return businessClient.getLikesByPost(postId);
+        } catch (FeignException.NotFound e) {
+            log.error("Post no encontrado con ID: {}", postId);
+            throw new ResourceNotFoundException("Post no encontrado con ID: " + postId);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener likes del post: {}", postId);
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener likes del post: {}, status: {}", postId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public void removeLike(Long likeId) {
+        try {
+            log.info("Eliminando like con ID: {}", likeId);
+            businessClient.removeLike(likeId);
+        } catch (FeignException.NotFound e) {
+            log.error("Like no encontrado con ID: {}", likeId);
+            throw new ResourceNotFoundException("Like no encontrado con ID: " + likeId);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para eliminar like con ID: {}", likeId);
+            throw new UnauthorizedException("No autorizado para eliminar este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al eliminar like con ID: {}, status: {}", likeId, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public List<UserDto> getAllUsers() {
+        try {
+            log.info("Obteniendo todos los usuarios");
+            return businessClient.getAllUsers();
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para obtener usuarios");
+            throw new UnauthorizedException("No autorizado para acceder a este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al obtener usuarios, status: {}", e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public UserDto updateUser(Long id, UpdateUserRequest request) {
+        try {
+            log.info("Actualizando usuario con ID: {}", id);
+            return businessClient.updateUser(id, request);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException.BadRequest e) {
+            log.error("Error de validación al actualizar usuario: {}", e.getMessage());
+            throw new ExternalServiceException("Error de validación: " + e.getMessage());
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para actualizar usuario con ID: {}", id);
+            throw new UnauthorizedException("No autorizado para actualizar este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al actualizar usuario con ID: {}, status: {}", id, e.status());
+            throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
+        }
+    }
+
+    public void deleteUser(Long id) {
+        try {
+            log.info("Eliminando usuario con ID: {}", id);
+            businessClient.deleteUser(id);
+        } catch (FeignException.NotFound e) {
+            log.error("Usuario no encontrado con ID: {}", id);
+            throw new ResourceNotFoundException("Usuario no encontrado con ID: " + id);
+        } catch (FeignException.Unauthorized e) {
+            log.error("No autorizado para eliminar usuario con ID: {}", id);
+            throw new UnauthorizedException("No autorizado para eliminar este recurso");
+        } catch (FeignException e) {
+            log.error("Error en servicio de negocio al eliminar usuario con ID: {}, status: {}", id, e.status());
             throw new ExternalServiceException("Error en servicio de negocio: " + e.getMessage());
         }
     }

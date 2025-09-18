@@ -16,6 +16,9 @@ public class UpdateUserRequest {
     @Schema(description = "Alias público", example = "maria123")
     private String alias;
 
+    @Schema(description = "Correo electrónico", example = "maria@example.com")
+    private String email;
+
     @Schema(description = "Fecha de nacimiento", example = "1998-07-21")
     private LocalDate dateOfBirth;
 

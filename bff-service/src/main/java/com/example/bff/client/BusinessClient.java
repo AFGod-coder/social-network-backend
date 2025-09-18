@@ -24,4 +24,28 @@ public interface BusinessClient {
 
     @GetMapping("/api/v1/business/posts/{postId}/likes/count")
     Integer countLikes(@PathVariable Long postId);
+
+    @GetMapping("/api/v1/business/posts/{id}")
+    PostDto getPostById(@PathVariable Long id);
+
+    @GetMapping("/api/v1/business/posts")
+    List<PostDto> getAllPosts();
+
+    @DeleteMapping("/api/v1/business/posts/{id}")
+    void deletePost(@PathVariable Long id);
+
+    @GetMapping("/api/v1/business/posts/{postId}/likes")
+    List<LikeDto> getLikesByPost(@PathVariable Long postId);
+
+    @DeleteMapping("/api/v1/business/posts/{postId}/likes/{likeId}")
+    void removeLike(@PathVariable Long likeId);
+
+    @GetMapping("/api/v1/business/users")
+    List<UserDto> getAllUsers();
+
+    @PutMapping("/api/v1/business/users/{id}")
+    UserDto updateUser(@PathVariable Long id, @RequestBody UpdateUserRequest request);
+
+    @DeleteMapping("/api/v1/business/users/{id}")
+    void deleteUser(@PathVariable Long id);
 }

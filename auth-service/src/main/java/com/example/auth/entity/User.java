@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -34,6 +35,9 @@ public class User {
 
     @Column(nullable=false)
     private String role;
+
+    @Column(name="date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Column(name="created_at", nullable=false, updatable=false)
     private Instant createdAt;

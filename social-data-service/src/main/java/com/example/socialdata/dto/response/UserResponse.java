@@ -9,6 +9,7 @@ public record UserResponse(
         String lastName,
         String alias,
         String email,
+        String role,
         LocalDate dateOfBirth,
         LocalDateTime createdAt
 ) {}
