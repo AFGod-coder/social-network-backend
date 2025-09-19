@@ -87,7 +87,20 @@ public class BffService {
     public List<PostDto> getFeed(Long userId) {
         try {
             log.info("Obteniendo feed para usuario: {}", userId);
-            return businessClient.getFeed(userId);
+            List<PostDto> posts = businessClient.getFeed(userId);
+            
+            // Agregar conteo de likes a cada post
+            for (PostDto post : posts) {
+                try {
+                    Integer likesCount = businessClient.countLikes(post.getId());
+                    post.setLikesCount(likesCount);
+                } catch (Exception e) {
+                    log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                    post.setLikesCount(0);
+                }
+            }
+            
+            return posts;
         } catch (FeignException.Unauthorized e) {
             log.error("No autorizado para obtener feed del usuario: {}", userId);
             throw new UnauthorizedException("No autorizado para acceder a este recurso");
@@ -164,7 +177,18 @@ public class BffService {
     public PostDto getPost(Long id) {
         try {
             log.info("Obteniendo post con ID: {}", id);
-            return businessClient.getPostById(id);
+            PostDto post = businessClient.getPostById(id);
+            
+            // Agregar conteo de likes al post
+            try {
+                Integer likesCount = businessClient.countLikes(post.getId());
+                post.setLikesCount(likesCount);
+            } catch (Exception e) {
+                log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                post.setLikesCount(0);
+            }
+            
+            return post;
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", id);
             throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
@@ -180,7 +204,20 @@ public class BffService {
     public List<PostDto> getAllPosts() {
         try {
             log.info("Obteniendo todas las publicaciones");
-            return businessClient.getAllPosts();
+            List<PostDto> posts = businessClient.getAllPosts();
+            
+            // Agregar conteo de likes a cada post
+            for (PostDto post : posts) {
+                try {
+                    Integer likesCount = businessClient.countLikes(post.getId());
+                    post.setLikesCount(likesCount);
+                } catch (Exception e) {
+                    log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                    post.setLikesCount(0);
+                }
+            }
+            
+            return posts;
         } catch (FeignException.Unauthorized e) {
             log.error("No autorizado para obtener publicaciones");
             throw new UnauthorizedException("No autorizado para acceder a este recurso");
@@ -222,10 +259,10 @@ public class BffService {
         }
     }
 
-    public void removeLike(Long likeId) {
+    public void removeLike(Long postId, Long likeId) {
         try {
-            log.info("Eliminando like con ID: {}", likeId);
-            businessClient.removeLike(likeId);
+            log.info("Eliminando like con ID: {} del post: {}", likeId, postId);
+            businessClient.removeLike(postId, likeId);
         } catch (FeignException.NotFound e) {
             log.error("Like no encontrado con ID: {}", likeId);
             throw new ResourceNotFoundException("Like no encontrado con ID: " + likeId);

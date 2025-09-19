@@ -10,6 +10,7 @@ import com.example.socialdata.exception.PostException.InvalidPostMessageExceptio
 import com.example.socialdata.repository.PostRepository;
 import com.example.socialdata.repository.UserRepository;
 import com.example.socialdata.service.PostService;
+import com.example.socialdata.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final LikeService likeService;
 
     @Override
     public PostResponse createPost(CreatePostRequest request) {
@@ -66,12 +68,26 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostResponse map(PostEntity p) {
-        return new PostResponse(
-                p.getId(),
-                p.getMessage(),
-                p.getAuthor().getId(),
-                p.getAuthor().getAlias(),
-                LocalDateTime.ofInstant(p.getCreatedAt(), ZoneId.systemDefault())
-        );
+        try {
+            Integer likesCount = likeService.countLikes(p.getId());
+            return new PostResponse(
+                    p.getId(),
+                    p.getMessage(),
+                    p.getAuthor().getId(),
+                    p.getAuthor().getAlias(),
+                    LocalDateTime.ofInstant(p.getCreatedAt(), ZoneId.systemDefault()),
+                    likesCount
+            );
+        } catch (Exception e) {
+            // Si hay error al obtener el conteo de likes, devolver 0
+            return new PostResponse(
+                    p.getId(),
+                    p.getMessage(),
+                    p.getAuthor().getId(),
+                    p.getAuthor().getAlias(),
+                    LocalDateTime.ofInstant(p.getCreatedAt(), ZoneId.systemDefault()),
+                    0
+            );
+        }
     }
 }

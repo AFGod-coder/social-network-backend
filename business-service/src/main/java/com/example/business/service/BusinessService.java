@@ -54,6 +54,18 @@ public class BusinessService {
             List<PostDto> posts = socialDataClient.getAllPosts();
             // Filtrar posts del propio usuario (feed de otros usuarios)
             posts.removeIf(post -> post.getAuthorId().equals(userId));
+            
+            // Agregar conteo de likes a cada post
+            for (PostDto post : posts) {
+                try {
+                    Integer likesCount = socialDataClient.countLikes(post.getId());
+                    post.setLikesCount(likesCount);
+                } catch (Exception e) {
+                    log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                    post.setLikesCount(0);
+                }
+            }
+            
             return posts;
         } catch (FeignException e) {
             log.error("Error al obtener feed para usuario: {}, status: {}", userId, e.status());
@@ -106,7 +118,20 @@ public class BusinessService {
     public List<PostDto> getAllPosts() {
         try {
             log.info("Obteniendo todas las publicaciones");
-            return socialDataClient.getAllPosts();
+            List<PostDto> posts = socialDataClient.getAllPosts();
+            
+            // Agregar conteo de likes a cada post
+            for (PostDto post : posts) {
+                try {
+                    Integer likesCount = socialDataClient.countLikes(post.getId());
+                    post.setLikesCount(likesCount);
+                } catch (Exception e) {
+                    log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                    post.setLikesCount(0);
+                }
+            }
+            
+            return posts;
         } catch (FeignException e) {
             log.error("Error al obtener publicaciones, status: {}", e.status());
             throw new BusinessClientException("Error al obtener publicaciones: " + e.getMessage());
@@ -116,7 +141,18 @@ public class BusinessService {
     public PostDto getPostById(Long id) {
         try {
             log.info("Obteniendo post con ID: {}", id);
-            return socialDataClient.getPostById(id);
+            PostDto post = socialDataClient.getPostById(id);
+            
+            // Agregar conteo de likes al post
+            try {
+                Integer likesCount = socialDataClient.countLikes(post.getId());
+                post.setLikesCount(likesCount);
+            } catch (Exception e) {
+                log.warn("No se pudo obtener el conteo de likes para el post {}: {}", post.getId(), e.getMessage());
+                post.setLikesCount(0);
+            }
+            
+            return post;
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", id);
             throw new ResourceNotFoundException("Post no encontrado con ID: " + id);
@@ -152,10 +188,10 @@ public class BusinessService {
         }
     }
 
-    public void removeLike(Long likeId) {
+    public void removeLike(Long postId, Long likeId) {
         try {
-            log.info("Eliminando like con ID: {}", likeId);
-            socialDataClient.removeLike(likeId);
+            log.info("Eliminando like con ID: {} del post: {}", likeId, postId);
+            socialDataClient.removeLike(postId, likeId);
         } catch (FeignException.NotFound e) {
             log.error("Like no encontrado con ID: {}", likeId);
             throw new ResourceNotFoundException("Like no encontrado con ID: " + likeId);

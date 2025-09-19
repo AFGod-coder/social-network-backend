@@ -1,5 +1,6 @@
 package com.example.bff.security;
 
+import com.example.bff.config.CorsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,15 +16,20 @@ public class SecurityConfig {
 
     @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    
+    @Autowired
+    private final CorsConfig corsConfig;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsConfig corsConfig) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsConfig = corsConfig;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/bff/auth/**").permitAll() // login/register
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger

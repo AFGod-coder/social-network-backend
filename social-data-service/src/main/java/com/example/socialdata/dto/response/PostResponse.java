@@ -7,5 +7,6 @@ public record PostResponse(
         String message,
         Long authorId,
         String authorAlias,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        Integer likesCount
 ) {}

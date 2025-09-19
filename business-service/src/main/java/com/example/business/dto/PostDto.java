@@ -27,4 +27,7 @@ public class PostDto {
 
     @Schema(description = "Fecha de creación del post")
     private LocalDateTime createdAt;
+
+    @Schema(description = "Número total de likes del post", example = "5")
+    private Integer likesCount;
 }

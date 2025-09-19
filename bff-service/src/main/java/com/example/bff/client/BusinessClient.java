@@ -38,7 +38,7 @@ public interface BusinessClient {
     List<LikeDto> getLikesByPost(@PathVariable Long postId);
 
     @DeleteMapping("/api/v1/business/posts/{postId}/likes/{likeId}")
-    void removeLike(@PathVariable Long likeId);
+    void removeLike(@PathVariable Long postId, @PathVariable Long likeId);
 
     @GetMapping("/api/v1/business/users")
     List<UserDto> getAllUsers();

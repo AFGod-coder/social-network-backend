@@ -173,7 +173,7 @@ public class BusinessController {
             @Parameter(description = "ID del like", example = "1", required = true)
             @PathVariable @NotNull Long likeId) {
         log.info("Eliminando like {} del post: {}", likeId, postId);
-        service.removeLike(likeId);
+        service.removeLike(postId, likeId);
         return ResponseEntity.noContent().build();
     }
 

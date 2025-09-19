@@ -34,7 +34,7 @@ public interface SocialDataClient {
     void deletePost(@PathVariable("id") Long id);
 
     @DeleteMapping("/api/v1/posts/{postId}/likes/{likeId}")
-    void removeLike(@PathVariable("likeId") Long likeId);
+    void removeLike(@PathVariable("postId") Long postId, @PathVariable("likeId") Long likeId);
 
     @GetMapping("/api/v1/users")
     List<UserDto> getAllUsers();
