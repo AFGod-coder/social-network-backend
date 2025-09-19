@@ -25,7 +25,6 @@ public class BusinessService {
 
     public UserDto getUserById(Long id) {
         try {
-            log.info("Obteniendo usuario con ID: {}", id);
             UserDto authUser = authClient.getUserById(id);
             UserDto socialUser = socialDataClient.getUserById(id);
 
@@ -50,7 +49,6 @@ public class BusinessService {
 
     public List<PostDto> getFeed(Long userId) {
         try {
-            log.info("Obteniendo feed para usuario: {}", userId);
             List<PostDto> posts = socialDataClient.getAllPosts();
             // Filtrar posts del propio usuario (feed de otros usuarios)
             posts.removeIf(post -> post.getAuthorId().equals(userId));
@@ -75,7 +73,6 @@ public class BusinessService {
 
     public PostDto createPost(CreatePostRequest request) {
         try {
-            log.info("Creando post para usuario: {}", request.getAuthorId());
             return socialDataClient.createPost(request);
         } catch (FeignException.BadRequest e) {
             log.error("Error de validación al crear post: {}", e.getMessage());
@@ -88,7 +85,6 @@ public class BusinessService {
 
     public LikeDto addLike(Long postId, CreateLikeRequest request) {
         try {
-            log.info("Agregando like al post: {} por usuario: {}", postId, request.getUserId());
             return socialDataClient.addLike(postId, request);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -104,7 +100,6 @@ public class BusinessService {
 
     public Integer countLikes(Long postId) {
         try {
-            log.info("Contando likes del post: {}", postId);
             return socialDataClient.countLikes(postId);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -117,7 +112,6 @@ public class BusinessService {
 
     public List<PostDto> getAllPosts() {
         try {
-            log.info("Obteniendo todas las publicaciones");
             List<PostDto> posts = socialDataClient.getAllPosts();
             
             // Agregar conteo de likes a cada post
@@ -140,7 +134,6 @@ public class BusinessService {
 
     public PostDto getPostById(Long id) {
         try {
-            log.info("Obteniendo post con ID: {}", id);
             PostDto post = socialDataClient.getPostById(id);
             
             // Agregar conteo de likes al post
@@ -164,7 +157,6 @@ public class BusinessService {
 
     public void deletePost(Long id) {
         try {
-            log.info("Eliminando post con ID: {}", id);
             socialDataClient.deletePost(id);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", id);
@@ -177,7 +169,6 @@ public class BusinessService {
 
     public List<LikeDto> getLikes(Long postId) {
         try {
-            log.info("Obteniendo likes del post: {}", postId);
             return socialDataClient.getLikes(postId);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -190,7 +181,6 @@ public class BusinessService {
 
     public void removeLike(Long postId, Long likeId) {
         try {
-            log.info("Eliminando like con ID: {} del post: {}", likeId, postId);
             socialDataClient.removeLike(postId, likeId);
         } catch (FeignException.NotFound e) {
             log.error("Like no encontrado con ID: {}", likeId);
@@ -203,7 +193,6 @@ public class BusinessService {
 
     public List<UserDto> getAllUsers() {
         try {
-            log.info("Obteniendo todos los usuarios");
             return socialDataClient.getAllUsers();
         } catch (FeignException e) {
             log.error("Error al obtener usuarios, status: {}", e.status());
@@ -213,7 +202,6 @@ public class BusinessService {
 
     public UserDto updateUser(Long id, UpdateUserRequest request) {
         try {
-            log.info("Actualizando usuario con ID: {}", id);
             return socialDataClient.updateUser(id, request);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);
@@ -229,7 +217,6 @@ public class BusinessService {
 
     public void deleteUser(Long id) {
         try {
-            log.info("Eliminando usuario con ID: {}", id);
             socialDataClient.deleteUser(id);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);

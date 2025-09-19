@@ -27,7 +27,6 @@ public class BffService {
     // Auth
     public AuthResponse login(AuthRequest request) {
         try {
-            log.info("Intentando login para usuario: {}", request.email());
             return authClient.login(request);
         } catch (FeignException.Unauthorized e) {
             log.error("Credenciales inválidas para usuario: {}", request.email());
@@ -40,7 +39,6 @@ public class BffService {
 
     public AuthResponse register(RegisterRequest request) {
         try {
-            log.info("Registrando nuevo usuario: {}", request.email());
             return authClient.register(request);
         } catch (FeignException.Conflict e) {
             log.error("Usuario ya existe: {}", e.getMessage());
@@ -56,7 +54,6 @@ public class BffService {
 
     public UserDto getAuthUser(Long id) {
         try {
-            log.info("Obteniendo usuario de autenticación con ID: {}", id);
             return authClient.getUserById(id);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);
@@ -70,7 +67,6 @@ public class BffService {
     // Business
     public UserDto getUser(Long id) {
         try {
-            log.info("Obteniendo usuario completo con ID: {}", id);
             return businessClient.getUserById(id);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);
@@ -86,7 +82,6 @@ public class BffService {
 
     public List<PostDto> getFeed(Long userId) {
         try {
-            log.info("Obteniendo feed para usuario: {}", userId);
             List<PostDto> posts = businessClient.getFeed(userId);
             
             // Agregar conteo de likes a cada post
@@ -112,7 +107,6 @@ public class BffService {
 
     public PostDto createPost(CreatePostRequest request) {
         try {
-            log.info("Creando post para usuario: {}", request.getAuthorId());
             return businessClient.createPost(request);
         } catch (FeignException.BadRequest e) {
             log.error("Error de validación al crear post: {}", e.getMessage());
@@ -128,7 +122,6 @@ public class BffService {
 
     public LikeDto addLike(Long postId, CreateLikeRequest request) {
         try {
-            log.info("Agregando like al post: {} por usuario: {}", postId, request.getUserId());
             return businessClient.addLike(postId, request);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -147,7 +140,6 @@ public class BffService {
 
     public Integer countLikes(Long postId) {
         try {
-            log.info("Contando likes del post: {}", postId);
             return businessClient.countLikes(postId);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -163,7 +155,6 @@ public class BffService {
 
     public AuthResponse refreshToken(RefreshTokenRequest request) {
         try {
-            log.info("Renovando token de acceso");
             return authClient.refreshToken(request);
         } catch (FeignException.Unauthorized e) {
             log.error("Refresh token inválido o expirado");
@@ -176,7 +167,6 @@ public class BffService {
 
     public PostDto getPost(Long id) {
         try {
-            log.info("Obteniendo post con ID: {}", id);
             PostDto post = businessClient.getPostById(id);
             
             // Agregar conteo de likes al post
@@ -203,7 +193,6 @@ public class BffService {
 
     public List<PostDto> getAllPosts() {
         try {
-            log.info("Obteniendo todas las publicaciones");
             List<PostDto> posts = businessClient.getAllPosts();
             
             // Agregar conteo de likes a cada post
@@ -229,7 +218,6 @@ public class BffService {
 
     public void deletePost(Long id) {
         try {
-            log.info("Eliminando post con ID: {}", id);
             businessClient.deletePost(id);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", id);
@@ -245,7 +233,6 @@ public class BffService {
 
     public List<LikeDto> getLikes(Long postId) {
         try {
-            log.info("Obteniendo likes del post: {}", postId);
             return businessClient.getLikesByPost(postId);
         } catch (FeignException.NotFound e) {
             log.error("Post no encontrado con ID: {}", postId);
@@ -261,7 +248,6 @@ public class BffService {
 
     public void removeLike(Long postId, Long likeId) {
         try {
-            log.info("Eliminando like con ID: {} del post: {}", likeId, postId);
             businessClient.removeLike(postId, likeId);
         } catch (FeignException.NotFound e) {
             log.error("Like no encontrado con ID: {}", likeId);
@@ -277,7 +263,6 @@ public class BffService {
 
     public List<UserDto> getAllUsers() {
         try {
-            log.info("Obteniendo todos los usuarios");
             return businessClient.getAllUsers();
         } catch (FeignException.Unauthorized e) {
             log.error("No autorizado para obtener usuarios");
@@ -290,7 +275,6 @@ public class BffService {
 
     public UserDto updateUser(Long id, UpdateUserRequest request) {
         try {
-            log.info("Actualizando usuario con ID: {}", id);
             return businessClient.updateUser(id, request);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);
@@ -309,7 +293,6 @@ public class BffService {
 
     public void deleteUser(Long id) {
         try {
-            log.info("Eliminando usuario con ID: {}", id);
             businessClient.deleteUser(id);
         } catch (FeignException.NotFound e) {
             log.error("Usuario no encontrado con ID: {}", id);
