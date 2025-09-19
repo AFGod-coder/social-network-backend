@@ -1,27 +1,15 @@
-# 🌐 Social Network Backend
+# Social Network Backend
 
-Una red social completa construida con microservicios usando Spring Boot, que incluye autenticación JWT, gestión de usuarios, posts y likes.
+Una red social construida con microservicios usando Spring Boot, PostgreSQL y Docker.
 
 ## 🏗️ Arquitectura
 
-El proyecto está construido con una arquitectura de microservicios que incluye:
+El proyecto está compuesto por 4 microservicios:
 
-- **Auth Service**: Manejo de autenticación y usuarios
-- **Social Data Service**: Gestión de datos sociales (posts, likes)
-- **Business Service**: Lógica de negocio y orquestación
-- **BFF Service**: Backend-for-Frontend para el cliente
-
-## 🚀 Tecnologías Utilizadas
-
-- **Java 17**
-- **Spring Boot 3.2.5**
-- **Spring Security** con JWT
-- **Spring Cloud OpenFeign** para comunicación entre servicios
-- **PostgreSQL** como base de datos
-- **Docker & Docker Compose** para containerización
-- **Flyway** para migraciones de base de datos
-- **Swagger/OpenAPI** para documentación
-- **Lombok** para reducir código boilerplate
+- **auth-service** (Puerto 8081): Manejo de autenticación y usuarios
+- **social-data-service** (Puerto 8082): Gestión de posts y likes
+- **business-service** (Puerto 8083): Lógica de negocio
+- **bff-service** (Puerto 8084): Backend for Frontend (API Gateway)
 
 ## 📋 Prerrequisitos
 
@@ -29,215 +17,241 @@ El proyecto está construido con una arquitectura de microservicios que incluye:
 - Docker y Docker Compose
 - Git
 
-## 🛠️ Instalación y Configuración
+## 🚀 Instalación y Configuración
 
-### 1. Clonar el repositorio
+### 1. Clonar el Repositorio
+
 ```bash
-git clone <repository-url>
+git clone https://github.com/AFGod-coder/social-network-backend.git
 cd social-network-backend
 ```
 
-### 2. Ejecutar con Docker Compose
-```bash
-docker-compose up
+### 2. Configurar Variables de Entorno
+
+Crear un archivo `.env` en la raíz del proyecto:
+
+```env
+# Database Configuration
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=social_network
+
+# Service URLs (para desarrollo local)
+AUTH_SERVICE_URL=http://localhost:8081
+SOCIAL_DATA_SERVICE_URL=http://localhost:8082
+BUSINESS_SERVICE_URL=http://localhost:8083
+BFF_SERVICE_URL=http://localhost:8084
 ```
 
-Esto iniciará todos los servicios:
-- **Auth Service**: http://localhost:8082
-- **Social Data Service**: http://localhost:8081
+### 3. Construir y Ejecutar con Docker
+
+```bash
+# Construir todos los servicios
+./gradlew build
+
+# Levantar todos los servicios con Docker Compose
+docker-compose up -d
+
+# Verificar que todos los servicios estén ejecutándose
+docker-compose ps
+```
+
+### 4. Verificar la Instalación
+
+Los servicios estarán disponibles en:
+
+- **Auth Service**: http://localhost:8081
+- **Social Data Service**: http://localhost:8082
 - **Business Service**: http://localhost:8083
 - **BFF Service**: http://localhost:8084
 
-### 3. Verificar que los servicios estén funcionando
-```bash
-# Verificar estado de los contenedores
-docker-compose ps
+### 5. Verificar Logs
 
-# Ver logs
+```bash
+# Ver logs de todos los servicios
 docker-compose logs -f
+
+# Ver logs de un servicio específico
+docker-compose logs -f bff-service
+docker-compose logs -f business-service
+docker-compose logs -f social-data-service
+docker-compose logs -f auth-service
 ```
 
-## 📚 Documentación de la API
+## 🧪 Probar la API
 
-Una vez que los servicios estén ejecutándose, puedes acceder a la documentación Swagger en:
+### Usuarios de Prueba
 
-- **Auth Service**: http://localhost:8082/swagger-ui.html
-- **Social Data Service**: http://localhost:8081/swagger-ui.html
-- **Business Service**: http://localhost:8083/swagger-ui.html
-- **BFF Service**: http://localhost:8084/swagger-ui.html
+El sistema incluye datos de prueba:
 
-## 🔐 Autenticación
+- **Usuario Admin**: 
+  - Email: admin@example.com
+  - Password: admin123
 
-El sistema utiliza JWT (JSON Web Tokens) para la autenticación:
-
-1. **Registro**: `POST /api/v1/bff/auth/register`
-2. **Login**: `POST /api/v1/bff/auth/login`
-3. **Usar token**: Incluir en header `Authorization: Bearer <token>`
-
-## 🎯 Endpoints Principales
-
-### BFF Service (Puerto 8084) - Punto de entrada principal
+### Endpoints Principales
 
 #### Autenticación
-- `POST /api/v1/bff/auth/register` - Registrar nuevo usuario
-- `POST /api/v1/bff/auth/login` - Iniciar sesión
-- `GET /api/v1/bff/auth/users/{id}` - Obtener usuario de autenticación
-
-#### Funcionalidades (requieren autenticación)
-- `GET /api/v1/bff/users/{id}` - Obtener usuario completo
-- `GET /api/v1/bff/feed?userId={id}` - Obtener feed de usuario
-- `POST /api/v1/bff/posts` - Crear nuevo post
-- `POST /api/v1/bff/posts/{postId}/likes` - Dar like a un post
-- `GET /api/v1/bff/posts/{postId}/likes/count` - Contar likes de un post
-
-## 🗄️ Base de Datos
-
-El proyecto utiliza PostgreSQL con las siguientes bases de datos:
-
-- **auth_db**: Datos de autenticación y usuarios
-- **social_data_db**: Posts, likes y datos sociales
-- **business_db**: Datos de lógica de negocio
-
-Las migraciones se ejecutan automáticamente al iniciar los servicios.
-
-## 🧪 Ejemplo de Uso
-
-### 1. Registrar un usuario
 ```bash
-curl -X POST http://localhost:8084/api/v1/bff/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "usuario@ejemplo.com",
-    "password": "password123",
-    "firstName": "Juan",
-    "lastName": "Pérez",
-    "alias": "juanperez",
-    "dateOfBirth": "1990-01-01"
-  }'
+# Login
+POST http://localhost:8084/api/v1/bff/auth/login
+{
+  "email": "admin@example.com",
+  "password": "admin123"
+}
+
+# Registro
+POST http://localhost:8084/api/v1/bff/auth/register
+{
+  "firstName": "Juan",
+  "lastName": "Pérez",
+  "email": "juan@example.com",
+  "password": "password123",
+  "alias": "juanperez"
+}
 ```
 
-### 2. Iniciar sesión
+#### Posts
 ```bash
-curl -X POST http://localhost:8084/api/v1/bff/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "usuario@ejemplo.com",
-    "password": "password123"
-  }'
-```
+# Obtener feed del usuario
+GET http://localhost:8084/api/v1/bff/feed?userId=1
 
-### 3. Crear un post (usar token del login)
-```bash
-curl -X POST http://localhost:8084/api/v1/bff/posts \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <tu-token-jwt>" \
-  -d '{
-    "authorId": 1,
-    "message": "¡Hola mundo! Mi primer post en la red social."
-  }'
-```
+# Crear post
+POST http://localhost:8084/api/v1/bff/posts
+{
+  "authorId": 1,
+  "message": "Mi primer post"
+}
 
-## 🏗️ Estructura del Proyecto
+# Obtener likes de un post
+GET http://localhost:8084/api/v1/bff/posts/1/likes
 
-```
-social-network-backend/
-├── auth-service/                 # Servicio de autenticación
-│   ├── src/main/java/com/example/auth/
-│   ├── src/main/resources/
-│   └── build.gradle
-├── social-data-service/          # Servicio de datos sociales
-│   ├── src/main/java/com/example/socialdata/
-│   ├── src/main/resources/
-│   └── build.gradle
-├── business-service/             # Servicio de lógica de negocio
-│   ├── src/main/java/com/example/business/
-│   ├── src/main/resources/
-│   └── build.gradle
-├── bff-service/                  # Backend-for-Frontend
-│   ├── src/main/java/com/example/bff/
-│   ├── src/main/resources/
-│   └── build.gradle
-├── docker-compose.yml            # Configuración de Docker
-├── .gitignore
-└── README.md
+# Dar like a un post
+POST http://localhost:8084/api/v1/bff/posts/1/likes
+{
+  "userId": 1
+}
+
+# Quitar like de un post
+DELETE http://localhost:8084/api/v1/bff/posts/1/likes/1
 ```
 
 ## 🔧 Desarrollo
 
-### Ejecutar servicios individualmente
+### Estructura del Proyecto
 
-```bash
-# Auth Service
-cd auth-service
-./gradlew bootRun
-
-# Social Data Service
-cd social-data-service
-./gradlew bootRun
-
-# Business Service
-cd business-service
-./gradlew bootRun
-
-# BFF Service
-cd bff-service
-./gradlew bootRun
+```
+social-network-backend/
+├── auth-service/           # Servicio de autenticación
+├── social-data-service/    # Servicio de datos sociales
+├── business-service/       # Servicio de lógica de negocio
+├── bff-service/           # Backend for Frontend
+├── docker-compose.yml     # Configuración de Docker
+└── settings.gradle        # Configuración de Gradle
 ```
 
-### Compilar todos los servicios
+### Comandos Útiles
 
 ```bash
-# Desde la raíz del proyecto
-./gradlew build
-```
+# Construir un servicio específico
+./gradlew :auth-service:build
+./gradlew :social-data-service:build
+./gradlew :business-service:build
+./gradlew :bff-service:build
 
-## 🐳 Docker
+# Ejecutar tests
+./gradlew test
 
-### Comandos útiles
+# Limpiar y reconstruir
+./gradlew clean build
 
-```bash
-# Iniciar todos los servicios
-docker-compose up
+# Reiniciar un servicio específico
+docker-compose restart bff-service
 
-# Iniciar en segundo plano
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f
-
-# Detener servicios
+# Detener todos los servicios
 docker-compose down
 
-# Reconstruir imágenes
-docker-compose build --no-cache
-
-# Limpiar volúmenes
+# Detener y eliminar volúmenes
 docker-compose down -v
 ```
 
-## 🚀 Despliegue
+## 🐛 Solución de Problemas
 
-### Variables de entorno
+### Error 502 Bad Gateway
 
-Los servicios pueden configurarse mediante variables de entorno:
+Si encuentras errores 502, verifica:
 
-- `SPRING_DATASOURCE_URL`: URL de la base de datos
-- `SPRING_DATASOURCE_USERNAME`: Usuario de la base de datos
-- `SPRING_DATASOURCE_PASSWORD`: Contraseña de la base de datos
-- `JWT_SECRET`: Clave secreta para JWT
-- `JWT_EXPIRATION`: Tiempo de expiración del token
+1. **Servicios ejecutándose**:
+   ```bash
+   docker-compose ps
+   ```
 
-### Producción
+2. **Logs de errores**:
+   ```bash
+   docker-compose logs bff-service
+   docker-compose logs business-service
+   ```
 
-Para desplegar en producción:
+3. **Conectividad entre servicios**:
+   ```bash
+   # Verificar que los servicios se puedan comunicar
+   docker-compose exec bff-service curl http://business-service:8083/actuator/health
+   ```
 
-1. Configurar variables de entorno
-2. Usar bases de datos externas
-3. Configurar HTTPS
-4. Implementar monitoreo y logging
-5. Configurar balanceadores de carga
+### Error de Base de Datos
 
-## 🤝 Contribución
+Si hay problemas con la base de datos:
+
+```bash
+# Reiniciar solo las bases de datos
+docker-compose restart auth-db social-data-db business-db
+
+# Ver logs de la base de datos
+docker-compose logs auth-db
+```
+
+### Puerto en Uso
+
+Si un puerto está en uso:
+
+```bash
+# Verificar qué proceso usa el puerto
+netstat -ano | findstr :8084
+
+# Cambiar puertos en docker-compose.yml si es necesario
+```
+
+## 📊 Monitoreo
+
+### Health Checks
+
+Cada servicio expone un endpoint de health:
+
+- http://localhost:8081/actuator/health
+- http://localhost:8082/actuator/health
+- http://localhost:8083/actuator/health
+- http://localhost:8084/actuator/health
+
+### Swagger UI
+
+Documentación de la API disponible en:
+
+- http://localhost:8084/swagger-ui.html
+
+## 🔐 Seguridad
+
+- JWT tokens para autenticación
+- CORS configurado para desarrollo
+- Validación de entrada en todos los endpoints
+- Manejo seguro de contraseñas con BCrypt
+
+## 📝 Notas de Desarrollo
+
+- Los servicios se comunican usando Feign Client
+- Las bases de datos usan Flyway para migraciones
+- Los logs están configurados para desarrollo
+- CORS está habilitado para http://localhost:4200 (frontend)
+
+## 🤝 Contribuir
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -245,21 +259,6 @@ Para desplegar en producción:
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📝 Licencia
+## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
-
-## 👥 Autores
-
-- **Tu Nombre** - *Desarrollo inicial* - [TuGitHub](https://github.com/tuusuario)
-
-## 🙏 Agradecimientos
-
-- Spring Boot team por el excelente framework
-- Docker team por la containerización
-- PostgreSQL team por la base de datos
-- Todos los contribuidores de las librerías utilizadas
-
----
-
-**¡Disfruta construyendo tu red social! 🚀**
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
