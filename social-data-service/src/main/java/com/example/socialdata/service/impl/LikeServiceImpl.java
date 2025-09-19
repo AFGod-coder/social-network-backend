@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -75,7 +74,7 @@ public class LikeServiceImpl implements LikeService {
                 l.getId(),
                 l.getUser().getId(),
                 l.getPost().getId(),
-                LocalDateTime.ofInstant(l.getCreatedAt(), ZoneId.systemDefault())
+                l.getCreatedAt()
         );
     }
 }

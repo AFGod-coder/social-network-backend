@@ -3,7 +3,7 @@ package com.example.socialdata.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "likes", uniqueConstraints = {
@@ -29,10 +29,10 @@ public class LikeEntity {
     private PostEntity post;
 
     @Column(name="created_at", nullable=false, updatable=false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @PrePersist
     void prePersist() {
-        this.createdAt = Instant.now();
+        this.createdAt = LocalDateTime.now();
     }
 }

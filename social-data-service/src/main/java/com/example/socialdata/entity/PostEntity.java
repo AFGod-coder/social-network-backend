@@ -3,7 +3,7 @@ package com.example.socialdata.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posts")
@@ -22,7 +22,7 @@ public class PostEntity {
     private String message;
 
     @Column(name="created_at", nullable=false, updatable=false)
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "author_id")
@@ -30,6 +30,6 @@ public class PostEntity {
 
     @PrePersist
     void prePersist() {
-        this.createdAt = Instant.now();
+        this.createdAt = LocalDateTime.now();
     }
 }

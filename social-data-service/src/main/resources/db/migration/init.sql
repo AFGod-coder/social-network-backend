@@ -1,1 +1,0 @@
-CREATE SCHEMA IF NOT EXISTS social AUTHORIZATION social_data_user;
